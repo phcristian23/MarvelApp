@@ -1,0 +1,65 @@
+apply plugin: 'com.android.library'
+
+def marvelBaseURL = 'http://gateway.marvel.com/'
+
+def publicMarvelKey = '9acfecc509b9538557c3d3457b10b224'
+def privateMarvelKey = '567c7de1bf0eaa9824f49ae0f8e0dc5e3c372204'
+
+def publicDropboxKey = '44y9ycyb235ti7d'
+def privateDropboxKey = '2esr2yloy3x1a1s'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            buildConfigField 'String', 'BASE_URL', '"' + marvelBaseURL  + '"'
+
+            buildConfigField 'String', 'MPUBLIC_KEY', '"' + publicMarvelKey  + '"'
+            buildConfigField 'String', 'MPRIVATE_KEY','"' + privateMarvelKey + '"'
+
+            buildConfigField 'String', 'DPUBLIC_KEY', '"' + publicDropboxKey  + '"'
+            buildConfigField 'String', 'DPRIVATE_KEY','"' + privateDropboxKey + '"'
+        }
+
+        debug {
+            buildConfigField 'String', 'BASE_URL', '"' + marvelBaseURL  + '"'
+
+            buildConfigField 'String', 'MPUBLIC_KEY', '"' + publicMarvelKey  + '"'
+            buildConfigField 'String', 'MPRIVATE_KEY','"' + privateMarvelKey + '"'
+
+            buildConfigField 'String', 'DPUBLIC_KEY', '"' + publicDropboxKey  + '"'
+            buildConfigField 'String', 'DPRIVATE_KEY','"' + privateDropboxKey + '"'
+        }
+    }
+}
+
+
+def retrofitVersion = '2.0.0-beta2'
+def gsonVersion = '2.4'
+def rxJavaVersion = '1.1.0'
+
+def ioVersion = '2.4'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    compile "io.reactivex:rxandroid:${rxJavaVersion}"
+    compile "io.reactivex:rxjava:${rxJavaVersion}"
+
+    compile "com.squareup.retrofit:retrofit:${retrofitVersion}"
+    compile "com.google.code.gson:gson:${gsonVersion}"
+    compile "com.squareup.retrofit:adapter-rxjava:${retrofitVersion}"
+
+    compile "org.apache.directory.studio:org.apache.commons.io:${ioVersion}"
+}
