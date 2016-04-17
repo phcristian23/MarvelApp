@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 import retrofit.Converter;
 
 /**
- * Created by Horatiu Paval <horatiu.paval@osf-global.com>
+ * Created by Horatiu Paval
  * On 11/19/2015.
  */
 public class JsonConverter extends Converter.Factory{

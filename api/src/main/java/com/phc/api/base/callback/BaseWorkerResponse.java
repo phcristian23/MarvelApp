@@ -9,7 +9,7 @@ import retrofit.Retrofit;
 
 /**
  * Created by Horatiu Paval on 3/28/2016.
- * horatiu.paval@osf-global.com
+ *
  */
 public abstract class BaseWorkerResponse<Model> implements Callback<Model>, ApiResponse<Model> {
     @Override

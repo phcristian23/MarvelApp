@@ -19,7 +19,7 @@ import okio.Buffer;
 import retrofit.Retrofit;
 
 /**
- * Created by Horatiu Paval <horatiu.paval@osf-global.com>
+ * Created by Horatiu Paval
  * On 3/21/2016.
  */
 public abstract class BaseNetworkModule {

@@ -11,7 +11,7 @@ import okio.BufferedSource;
 import retrofit.Converter;
 
 /**
- * Created by Horatiu Paval <horatiu.paval@osf-global.com>
+ * Created by Horatiu Paval
  * On 11/19/2015.
  */
 class ResponseBodyConverter<T> implements Converter<ResponseBody, T> {
