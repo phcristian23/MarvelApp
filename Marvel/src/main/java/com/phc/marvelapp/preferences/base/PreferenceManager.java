@@ -3,6 +3,7 @@ package com.phc.marvelapp.preferences.base;
 import android.app.Application;
 import android.content.SharedPreferences;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -37,7 +38,7 @@ public class PreferenceManager {
     }
 
     protected final Set<String> get(String key) {
-        return this.mPreferences.getStringSet(key, null);
+        return this.mPreferences.getStringSet(key, new HashSet<String>());
     }
 
     protected final boolean set(String key, String value) {
@@ -62,5 +63,9 @@ public class PreferenceManager {
 
     protected final boolean set(String key, Set<String> values) {
         return this.mPreferences.edit().putStringSet(key, values).commit();
+    }
+
+    protected final void remove(String key) {
+        this.mPreferences.edit().remove(key).apply();
     }
 }

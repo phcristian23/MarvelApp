@@ -55,6 +55,10 @@ public abstract class SearchableAdapter<Item, H extends RecyclerView.ViewHolder>
         return filteredList.size();
     }
 
+    public int getUnfilteredItemCount() {
+        return itemList.size();
+    }
+
     //region Filter
     private Item removeItem(int position) {
         final Item item = filteredList.remove(position);

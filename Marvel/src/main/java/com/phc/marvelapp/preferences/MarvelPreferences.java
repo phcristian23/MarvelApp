@@ -1,11 +1,11 @@
 package com.phc.marvelapp.preferences;
 
 import android.app.Application;
+import android.util.Log;
 
 import com.phc.marvelapp.preferences.base.PreferenceManager;
 
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * Created by Horatiu on 4/17/2016.
@@ -28,9 +28,7 @@ public class MarvelPreferences extends PreferenceManager {
 
     public void addComicID(Long id) {
         Set<String> idSet = get(IMAGE_CUSTOM_KEY);
-        if (idSet == null) {
-            idSet = new CopyOnWriteArraySet<>();
-        }
+        remove(IMAGE_CUSTOM_KEY);
 
         idSet.add(id.toString());
 
@@ -39,6 +37,8 @@ public class MarvelPreferences extends PreferenceManager {
 
     public boolean comicIDExists(Long id) {
         Set<String> idSet = get(IMAGE_CUSTOM_KEY);
+
+        Log.e("CoverComic", idSet.size() + " " + id + " " + idSet.contains(id.toString()));
 
         if (idSet == null) {
             return false;

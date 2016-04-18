@@ -1,5 +1,7 @@
 package com.phc.marvelapp.ui.adapter;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,12 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.phc.api.impl.dropbox.DropboxManager;
 import com.phc.api.impl.network.models.Comic;
 import com.phc.marvelapp.R;
 import com.phc.marvelapp.ui.adapter.base.SearchableAdapter;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +28,7 @@ import butterknife.ButterKnife;
  */
 public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicView> {
     private Picasso picasso;
+    private DropboxManager manager;
 
     public interface ComicTapListener{
         void onComicTapped(Comic comic, int position);
@@ -31,7 +36,9 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
 
     private ComicTapListener listener;
 
-    public ComicsAdapter() {}
+    public ComicsAdapter(DropboxManager manager) {
+        this.manager = manager;
+    }
 
     public void addComic(Comic comic) {
         addItem(comic, true);
@@ -69,7 +76,12 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
             }
 
             creator.placeholder(R.drawable.placeholder)
+                    .resize(300, 450)
                     .into(holder.comicCover);
+
+            if (comic.useCustomFile() && comic.getImageFile() == null) {
+                getFromDB(comic, holder);
+            }
         }
 
 //        holder.comicTitle.setText(comic.getComicName());
@@ -97,6 +109,28 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
         }
 
         return filteredList;
+    }
+
+    public void getFromDB(final Comic comic, final ComicView holder) {
+        if (manager.isLinked()) {
+            manager.getImage(comic.getComicID(), new DropboxManager.FileListener() {
+                @Override
+                public void onImageReceived(File image) {
+                    comic.setImageFile(image);
+
+                    final int holderPosition = holder.getAdapterPosition();
+
+                    if (holderPosition <= getItemCount() - 1) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                notifyItemChanged(holderPosition);
+                            }
+                        });
+                    }
+                }
+            });
+        }
     }
 
     public void setOnComicLongClickListener(ComicTapListener listener) {

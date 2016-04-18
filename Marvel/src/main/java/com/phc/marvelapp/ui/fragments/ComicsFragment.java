@@ -6,7 +6,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -17,14 +20,10 @@ import com.phc.api.impl.network.managers.ComicsManager;
 import com.phc.api.impl.network.models.Comic;
 import com.phc.marvelapp.R;
 import com.phc.marvelapp.preferences.MarvelPreferences;
-import com.phc.marvelapp.ui.activities.MainActivity;
 import com.phc.marvelapp.ui.adapter.ComicsAdapter;
 import com.phc.marvelapp.ui.adapter.listener.LoadScrollListener;
 import com.phc.marvelapp.ui.fragments.base.BaseFragment;
 import com.phc.marvelapp.ui.fragments.worker.GetFileFragment;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
 import java.util.List;
@@ -46,9 +45,7 @@ public class ComicsFragment extends BaseFragment implements GetFileFragment.List
     private DropboxManager dropboxManager;
     private MarvelPreferences preferences;
 
-    private EventBus bus = EventBus.getDefault();
-
-    private String currentSearchCriteria = "";
+    private SearchView searchView;
 
     @Bind(R.id.fc_refresh_layout)
     SwipyRefreshLayout refreshLayout;
@@ -59,17 +56,19 @@ public class ComicsFragment extends BaseFragment implements GetFileFragment.List
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
         this.comicsManager = getApplicationComponent().getApiManager().getComicsManager();
         this.dropboxManager = getApplicationComponent().getDropboxManager();
         this.preferences = getApplicationComponent().getPreferences();
 
-        this.bus.register(this);
+//        this.bus.register(this);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        this.comicsAdapter = new ComicsAdapter();
+        this.comicsAdapter = new ComicsAdapter(dropboxManager);
         View view = LayoutInflater.from(getContext()).inflate(R.layout.fragment_comics, container, false);
         ButterKnife.bind(this, view);
         return view;
@@ -92,7 +91,7 @@ public class ComicsFragment extends BaseFragment implements GetFileFragment.List
         refreshLayout.setOnRefreshListener(new SwipyRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh(SwipyRefreshLayoutDirection direction) {
-                loadAndShow(comicsAdapter.getItemCount(), 20, new Runnable() {
+                loadAndShow(comicsAdapter.getUnfilteredItemCount(), 20, new Runnable() {
                     @Override
                     public void run() {
                         refreshLayout.setRefreshing(false);
@@ -104,12 +103,43 @@ public class ComicsFragment extends BaseFragment implements GetFileFragment.List
         loadAndShow(0, 20, null);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            String last = "";
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (!last.equals(newText)) {
+                    last = newText;
+
+                    comicsAdapter.filter(newText);
+                }
+                return false;
+            }
+        });
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     private synchronized void loadAndShow(int start, int limit, final Runnable runnable) {
+        if (searchView != null) {
+            searchView.setQuery("", true);
+        }
+
         comicsManager.getComicList(start, limit,
                 new Subscriber<List<Comic>>() {
+                    List<Comic> comicList;
+
                     @Override
                     public void onCompleted() {
-
+                        comicsAdapter.addComics(comicList);
                     }
 
                     @Override
@@ -119,20 +149,13 @@ public class ComicsFragment extends BaseFragment implements GetFileFragment.List
 
                     @Override
                     public void onNext(List<Comic> comics) {
-//                        if (dropboxManager.isLinked()) {
-//                            for (final Comic comic : comics) {
-//                                if (preferences.comicIDExists(comic.getComicID())) {
-//                                    dropboxManager.getImage(comic.getComicID(), new DropboxManager.FileListener() {
-//                                        @Override
-//                                        public void onImageReceived(File image) {
-//                                            comic.setImageFile(image);
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        }
+                        comicList = comics;
 
-                        comicsAdapter.addComics(comics);
+                        for (Comic comic: comicList) {
+                            if (preferences.comicIDExists(comic.getComicID())) {
+                                comic.setUseCustomFile(true);
+                            }
+                        }
 
                         if (runnable != null) {
                             runnable.run();
@@ -144,18 +167,8 @@ public class ComicsFragment extends BaseFragment implements GetFileFragment.List
 
     @Override
     public void onDestroy() {
-        this.bus.unregister(this);
-
         super.onDestroy();
     }
-
-    @Subscribe
-    public void onEvent(MainActivity.SearchEvent event){
-        currentSearchCriteria = event.getSearchString();
-
-        this.comicsAdapter.filter(currentSearchCriteria);
-    }
-
 
     private ComicsAdapter.ComicTapListener onComicLongTappedListener = new ComicsAdapter.ComicTapListener() {
         @Override

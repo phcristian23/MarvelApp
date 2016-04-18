@@ -11,6 +11,7 @@ public class Comic {
     private String comicName;
     private String imageURL;
     private File imageFile;
+    private boolean useCustomFile;
 
 
     public long getComicID() {
@@ -45,6 +46,11 @@ public class Comic {
         this.imageFile = imageFile;
     }
 
+    public boolean useCustomFile() {
+        return useCustomFile;
+    }
 
-
+    public void setUseCustomFile(boolean useCustomFile) {
+        this.useCustomFile = useCustomFile;
+    }
 }
