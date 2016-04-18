@@ -50,6 +50,15 @@ public abstract class SearchableAdapter<Item, H extends RecyclerView.ViewHolder>
         return filteredList;
     }
 
+    protected ArrayList<Item> getAbsoluteItems() {
+        return itemList;
+    }
+
+    protected void clearList() {
+        this.itemList.clear();
+        this.filteredList.clear();
+    }
+
     @Override
     public int getItemCount() {
         return filteredList.size();

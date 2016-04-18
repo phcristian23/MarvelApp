@@ -8,11 +8,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.FrameLayout;
 
+import com.phc.marvelapp.R;
 import com.phc.marvelapp.application.MarvelApplication;
 import com.phc.marvelapp.injection.component.ApplicationComponent;
 import com.phc.marvelapp.injection.module.ActivityModule;
 import com.phc.marvelapp.ui.interfaces.ActivityInterface;
-import com.phc.marvelapp.ui.utils.Utils;
 
 import butterknife.ButterKnife;
 
@@ -27,21 +27,10 @@ public abstract class BaseActivity extends AppCompatActivity implements Activity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.mainView = new FrameLayout(this);
-        this.mainView.setId(Utils.generateViewId());
         this.fragmentManager = getSupportFragmentManager();
-
-        if (getLayoutID() != null) {
-            setContentView(getLayoutID());
-        } else {
-            setContentView(mainView);
-        }
-
+        setContentView(R.layout.activity_base);
+        this.mainView = (FrameLayout) findViewById(R.id.main_view);
         ButterKnife.bind(this);
-    }
-
-    protected Integer getLayoutID(){
-        return null;
     }
 
     private void inject() {
@@ -88,6 +77,32 @@ public abstract class BaseActivity extends AppCompatActivity implements Activity
             for(int i = 0; i < fragmentManager.getBackStackEntryCount(); i++){
                 fragmentManager.popBackStack();
             }
+        }
+    }
+
+    @Override
+    public void startWorkerFragment(Fragment fragment, String fragmentTag) {
+        startWorkerFragmentImpl(fragment, fragmentTag);
+    }
+
+    @Override
+    public void removeFragmentByTag(String fragmentTag) {
+        removeFragmentByTagImpl(fragmentTag);
+    }
+
+    private void startWorkerFragmentImpl(Fragment fragment, String fragmentTag) {
+        Fragment oldInstance = fragmentManager.findFragmentByTag(fragmentTag);
+
+        if(oldInstance == null) {
+            fragmentManager.beginTransaction().add(fragment, fragmentTag).commit();
+        }
+    }
+
+    private void removeFragmentByTagImpl(String fragmentTag) {
+        Fragment oldInstance = fragmentManager.findFragmentByTag(fragmentTag);
+
+        if (oldInstance != null) {
+            fragmentManager.beginTransaction().remove(oldInstance).commitAllowingStateLoss();
         }
     }
 }

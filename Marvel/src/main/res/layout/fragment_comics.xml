@@ -5,12 +5,10 @@
     android:layout_height="match_parent"
     android:layout_margin="@dimen/item_comic_margin">
 
-    <!-- This library has a margin right hardcoded as it appears-->
     <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
         android:id="@+id/fc_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="10dp"
         android:padding="0dp"
         app:srl_direction="bottom">
 

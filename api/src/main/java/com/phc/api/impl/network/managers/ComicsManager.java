@@ -17,6 +17,8 @@ import rx.functions.Func1;
  */
 public class ComicsManager extends BaseManager{
     private static final String IMAGE_TYPE = "portrait_uncanny";
+    public static final int IMAGE_WIDTH = 300;
+    public static final int IMAGE_HEIGHT = 450;
 
     private ComicsService service;
 

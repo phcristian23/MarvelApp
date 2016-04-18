@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.phc.api.impl.dropbox.DropboxManager;
+import com.phc.api.impl.network.managers.ComicsManager;
 import com.phc.api.impl.network.models.Comic;
 import com.phc.marvelapp.R;
 import com.phc.marvelapp.ui.adapter.base.SearchableAdapter;
@@ -30,11 +31,16 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
     private Picasso picasso;
     private DropboxManager manager;
 
-    public interface ComicTapListener{
+    public interface ComicLongTapListener {
+        void onComicLongTapped(Comic comic, int position);
+    }
+
+    public interface ComicTapListener {
         void onComicTapped(Comic comic, int position);
     }
 
-    private ComicTapListener listener;
+    private ComicTapListener tapListener;
+    private ComicLongTapListener longTapListener;
 
     public ComicsAdapter(DropboxManager manager) {
         this.manager = manager;
@@ -44,12 +50,24 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
         addItem(comic, true);
     }
 
+    public void addComics(List<Comic> comics, boolean refresh) {
+        addItems(comics, refresh);
+    }
+
     public void addComics(List<Comic> comics) {
         addItems(comics, true);
     }
 
     public Comic getComic(int position) {
         return getAbsoluteItem(position);
+    }
+
+    public List<Comic> getAllComics() {
+        return getAbsoluteItems();
+    }
+
+    public void clearComicList() {
+        clearList();
     }
 
     public void filter(String text) {
@@ -69,14 +87,15 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
         if (picasso != null) {
             RequestCreator creator = null;
 
-            if (comic.getImageFile() != null) {
+            if (comic.getImageFile() != null && comic.useCustomFile()) {
                 creator = picasso.load(comic.getImageFile());
             } else {
                 creator = picasso.load(comic.getImageURL());
             }
 
             creator.placeholder(R.drawable.placeholder)
-                    .resize(300, 450)
+                    .resize((int) (ComicsManager.IMAGE_WIDTH * 2F), (int) (ComicsManager.IMAGE_HEIGHT * 1F))
+                    .centerCrop()
                     .into(holder.comicCover);
 
             if (comic.useCustomFile() && comic.getImageFile() == null) {
@@ -84,15 +103,24 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
             }
         }
 
-//        holder.comicTitle.setText(comic.getComicName());
+        holder.comicTitle.setText(comic.getComicName());
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (listener != null) {
-                    listener.onComicTapped(comic, holder.getAdapterPosition());
+                if (longTapListener != null) {
+                    longTapListener.onComicLongTapped(comic, holder.getAdapterPosition());
                 }
                 return true;
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (tapListener != null) {
+                    tapListener.onComicTapped(comic, holder.getAdapterPosition());
+                }
             }
         });
     }
@@ -133,8 +161,12 @@ public class ComicsAdapter extends SearchableAdapter<Comic, ComicsAdapter.ComicV
         }
     }
 
-    public void setOnComicLongClickListener(ComicTapListener listener) {
-        this.listener = listener;
+    public void setOnComicLongClickListener(ComicLongTapListener listener) {
+        this.longTapListener = listener;
+    }
+
+    public void setTapListener(ComicTapListener tapListener) {
+        this.tapListener = tapListener;
     }
 
     class ComicView extends RecyclerView.ViewHolder {

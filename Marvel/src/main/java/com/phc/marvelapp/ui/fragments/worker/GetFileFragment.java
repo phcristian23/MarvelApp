@@ -83,7 +83,7 @@ public class GetFileFragment extends BaseFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setRetainInstance(true);
+        setRetainInstance(false);
 
         this.dropboxManager = getApplicationComponent().getDropboxManager();
 
@@ -125,7 +125,5 @@ public class GetFileFragment extends BaseFragment {
         if (listener != null) {
             listener.onFileProcessed(file, comicPosition);
         }
-
-        super.onDestroy();
     }
 }

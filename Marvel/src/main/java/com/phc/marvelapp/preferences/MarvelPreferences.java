@@ -1,7 +1,6 @@
 package com.phc.marvelapp.preferences;
 
 import android.app.Application;
-import android.util.Log;
 
 import com.phc.marvelapp.preferences.base.PreferenceManager;
 
@@ -37,8 +36,6 @@ public class MarvelPreferences extends PreferenceManager {
 
     public boolean comicIDExists(Long id) {
         Set<String> idSet = get(IMAGE_CUSTOM_KEY);
-
-        Log.e("CoverComic", idSet.size() + " " + id + " " + idSet.contains(id.toString()));
 
         if (idSet == null) {
             return false;

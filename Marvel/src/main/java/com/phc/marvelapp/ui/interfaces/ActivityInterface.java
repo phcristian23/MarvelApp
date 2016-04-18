@@ -12,4 +12,6 @@ public interface ActivityInterface {
     ApplicationComponent getApplicationComponent();
     ActivityModule getActivityModule();
     void changeFragment(Fragment fragment, boolean addToBackStack);
+    void startWorkerFragment(Fragment fragment, String fragmentTag);
+    void removeFragmentByTag(String fragmentTag);
 }

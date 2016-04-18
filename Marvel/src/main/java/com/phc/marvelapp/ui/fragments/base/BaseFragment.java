@@ -2,6 +2,8 @@ package com.phc.marvelapp.ui.fragments.base;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.phc.marvelapp.injection.component.ApplicationComponent;
@@ -37,6 +39,12 @@ public abstract class BaseFragment extends Fragment{
         }
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     protected ApplicationComponent getApplicationComponent() {
         return activityInterface.getApplicationComponent();
     }
@@ -47,5 +55,13 @@ public abstract class BaseFragment extends Fragment{
 
     protected void changeFragment(Fragment fragment, boolean addToBackStack) {
         this.activityInterface.changeFragment(fragment, addToBackStack);
+    }
+
+    protected void startWorkerFragment(Fragment fragment, String tag) {
+        this.activityInterface.startWorkerFragment(fragment, tag);
+    }
+
+    protected void removeFragmentByTag(String tag) {
+        this.activityInterface.removeFragmentByTag(tag);
     }
 }
